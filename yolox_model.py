@@ -1,7 +1,3 @@
-#!/usr/bin/env python3
-# -*- coding:utf-8 -*-
-# Copyright (c) Megvii, Inc. and its affiliates.
-
 import argparse
 import os
 import time
@@ -14,7 +10,6 @@ import torch
 from lib.yolox.data.data_augment import ValTransform
 from lib.yolox.utils import get_model_info, postprocess
 from lib.yolox.exp import get_exp
-
 
 
 class Predictor():
@@ -35,7 +30,6 @@ class Predictor():
         self.exp.test_size = (size, size)
 
         self.model = self.exp.get_model()
-        # print('Yolox Model load...{}'.format(self.model))
 
         if self.device == 'gpu':
             self.model.to('cuda:{}'.format(self.gpu_id))
@@ -49,7 +43,6 @@ class Predictor():
         self.num_classes = self.exp.num_classes
 
         self.preproc = ValTransform()
-
 
         if self.trt_file is not None:
             from torch2trt import TRTModule
@@ -65,8 +58,6 @@ class Predictor():
             self.model(x)
             self.model = model_trt
 
-
-    # model 복호화
     def decrypt(self):
         import io
         from struct import unpack, calcsize
@@ -104,28 +95,6 @@ class Predictor():
             buffer = io.BytesIO(buffer.getvalue())
 
         return buffer
-
-        # path = '/home/fourind/py36/Sorest_NX_fire detect/20211016_NX_new fire detect_v2/model/test_c.pth'
-        # new_path = '/home/fourind/py36/Sorest_NX_fire detect/20211016_NX_new fire detect_v2/model/test_d.pth'
-
-        # with open(path, 'rb') as origin:  # 암호화 파일
-        #     filesize = unpack('<Q', origin.read(calcsize('<Q')))[0]
-        #     aes = AES.new(secret_key, AES.MODE_CBC, iv)
-        #
-        #     with open(new_path, 'wb') as ret:  # 복호화 파일
-        #         ret.write(aes.decrypt(origin.read(16)))
-        #
-        #         while True:
-        #             block = origin.read(blocksize)  # 1024 블록 단위로 복호화 진행. 16의 배수라면 ok
-        #             if len(block) == 0:
-        #                 break
-        #             ret.write(aes.decrypt(block))
-        #             print(aes.decrypt(block))
-        #         ret.truncate(filesize)
-        #         print(ret)
-        #
-        # return new_path
-
 
     def detect(self, img):
         self.num_classes = self.exp.num_classes
